@@ -11,29 +11,61 @@
 <script src="jquery.mobile.dynamic.popup.js"></script> <!-- this is only for the GoJS Samples framework -->
 
 <script id="code">
+  /**
+   * Define soure file component :-
+   * Properties:- 
+   *    FileName : Select file from directory (Phase 1)
+   *    Html :- Dynamic html for popup box (Phase 1)
+   *    Fields:- Array of Fields in fileName, drop down check box (Phase 2), update html
+   *    FileProperties: Define file properties like file type (Phase 2), update html
+   * 
+   */
+  var SourceFileComponent = {
+      category : "File"
+     ,key:"Source"
+     ,fileName: ""
+     ,fields: []
+     ,loc: "85 160"
+     ,html: '<div> <form> FileName:<br> <input id="textInput" type="text" name="firstname"> </form> </div>'
+     ,editNode: function(e,obj){
+        alert("i am directly here")
+        $(this.html)
+                .appendTo('body')
+                .dialog({
+                    modal: true,
+                    width: 425,
+                    height: 275,
+                    buttons: {
+                        OK: function(){
+                            var fileName = $('#textInput').val();
+                            $(this).dialog('close');
+                        },
+                        CANCEL : function(){
+                            $(this).dialog('close');
+                        }
+                    }
+                });
+     }
+  }
+
+  var GoogleFeedDestination = {
+      category : "File"
+     ,key:"Google"
+     ,fields: [
+         { name: "ProductID", color: "#F7B84B", figure: "Ellipse" },
+         { name: "ProductName", color: "#F25022", figure: "Ellipse" },
+         { name: "Color", color: "#00BCF2" }
+     ]
+     ,loc: "485 160"
+  }
+
   var PackageModel = { 
        "class": "go.GraphLinksModel",
         "linkFromPortIdProperty": "fromPort",
         "linkToPortIdProperty": "toPort",
         "nodeDataArray": [
-        {"category":"Comment", "loc":"360 -10", "text":"Kookie Brittle", "key":-13},
-        {"key":-1, "category":"Start", "loc":"175 0", "text":"Start"},
-        {"key":0, "loc":"0 77", "text":"Preheat oven to 375 F"},
-        {"key":1, "loc":"175 100", "text":"In a bowl, blend: 1 cup margarine, 1.5 teaspoon vanilla, 1 teaspoon salt"},
-        {"category":"File","key": "Source",
-                fields: [
-                  { name: "field1", color: "#F7B84B", figure: "Ellipse" },
-                  { name: "field2", color: "#F25022", figure: "Ellipse" },
-                  { name: "fieldThree", color: "#00BCF2" }
-                ],
-                loc: "175 340" },
-        {"category":"File","key": "Google",
-                fields: [
-                  { name: "field1", info: "", color: "#F7B84B", figure: "Ellipse" },
-                  { name: "field2", info: "the second one", color: "#F25022", figure: "Ellipse" },
-                  { name: "fieldThree", info: "3rd", color: "#00BCF2" }
-                ],
-                loc: "175 400" },        
+        SourceFileComponent,        
+        GoogleFeedDestination,        
         ],
         "linkDataArray": [
       
@@ -85,24 +117,15 @@
         ];
     }
 
+    // dont need this anymore, every node has its own edit node function that called directly from node template
     /**
-   * Edit Node properties on Double click
-   */
+     * Open Node specific dialog box , html comes from node itself
+     *
+     */
     var editNode = function(e, obj) {
-        alert("Clicked on " + JSON.stringify(obj.part.data,null,4));
-        $('<div id="error" title="No Address Matches Found">We could not match the address to any known addresses.  Please correct the address and try again.</div>')
-                .appendTo('body')
-                .dialog({
-                    modal: true,
-                    width: 425,
-                    height: 275,
-                    buttons: {
-                        OK: function(){
-                            $(this).dialog('close');
-                        }
-                    }
-                });
-
+        alert("I am going via here")
+        obj.part.data.editNode();
+    
     }
 
     // Define a function for creating a "port" that is normally transparent.
@@ -283,7 +306,8 @@
               new go.Binding("itemArray", "fields")
             )  // end Table Panel of items
           )  // end Vertical Panel
-          ,{doubleClick: editNode}
+          ,new go.Binding("doubleClick", "editNode")
+          //,{doubleClick: editNode}
         ) 
         );
   
@@ -382,6 +406,28 @@
 }
 
   
+function addFilesToSource(){
+    var dataModel = myDiagram.model.toJson()
+    var sample =     { "class": "go.GraphLinksModel",
+      "linkFromPortIdProperty": "fromPort",
+      "linkToPortIdProperty": "toPort",
+      "nodeDataArray": [ 
+    {"category":"Comment", "loc":"360 -10", "text":"Kookie Brittle", "key":-13},
+    {"key":-1, "category":"Start", "loc":"175 0", "text":"Start"},
+    {"key":0, "loc":"0 77", "text":"Preheat oven to 375 F"},
+    {"key":1, "loc":"175 100", "text":"In a bowl, blend: 1 cup margarine, 1.5 teaspoon vanilla, 1 teaspoon salt"},
+    {"category":"File", "key":"Source", "fields":[ {"name":"field1", "color":"#F7B84B", "figure":"Ellipse"},{"name":"field2", "color":"#F25022", "figure":"Ellipse"},{"name":"fieldThree", "color":"#00BCF2"} ], "loc":"175 340"},
+    {"category":"File", "key":"Google", "fields":[ {"name":"field1", "info":"", "color":"#F7B84B", "figure":"Ellipse"},{"name":"field2", "info":"the second one", "color":"#F25022", "figure":"Ellipse"},{"name":"fieldThree", "info":"3rd", "color":"#00BCF2"} ], "loc":"175 400"}
+     ],
+      "linkDataArray": []}
+      
+   // myDiagram.startTransaction("AddingFields");
+    var object = myDiagram.model["nodeDataArray"][4]
+    object.fields.push({"name":"field4", "color":"#F7B84B", "figure":"Ellipse"})
+    alert(JSON.stringify(object))
+  myDiagram.model = go.Model.fromJson(PackageModel);
+      }
+      
       
       
 
