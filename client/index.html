@@ -38,7 +38,16 @@
                     buttons: {
                         OK: function(){
                             var fileName = $('#textInput').val();
+                            // get all headers for this file using server rest api call
+                            var data = myDiagram.model.findNodeDataForKey(self.key)
+                            alert(JSON.stringify(data))
+                            var newFields = [
+                            { name: "ProductID", color: "#F7B84B", figure: "Ellipse" },
+                            { name: "ProductName", color: "#F7B84B", figure: "Ellipse" }
+                            ]
+                            myDiagram.model.setDataProperty(data,"fields",newFields)
                             $(this).dialog('close');
+
                         },
                         CANCEL : function(){
                             $(this).dialog('close');
@@ -46,6 +55,7 @@
                     }
                 });
      }
+
   }
 
   var GoogleFeedDestination = function(){
@@ -388,7 +398,8 @@
     myPalette =
             GO(go.Palette, "myPalette",  // must name or refer to the DIV HTML element
                     {
-                        "animationManager.duration": 800, // slightly longer than default (600ms) animation
+                        "animationManager.duration": 600
+                        , // slightly longer than default (600ms) animation
                         nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
                         model: new go.GraphLinksModel([  // specify the contents of the Palette
                             { category: "Start", text: "Start" },
