@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-<script src="jquery.mobile.dynamic.popup.js"></script> <!-- this is only for the GoJS Samples framework -->
+
 
 <script id="code">
   /**
@@ -20,16 +20,16 @@
    *    FileProperties: Define file properties like file type (Phase 2), update html
    * 
    */
-  var SourceFileComponent = {
-      category : "File"
-     ,key:"Source"
-     ,fileName: ""
-     ,fields: []
-     ,loc: "85 160"
-     ,html: '<div> <form> FileName:<br> <input id="textInput" type="text" name="firstname"> </form> </div>'
-     ,editNode: function(e,obj){
-        alert("i am directly here")
-        $(this.html)
+   var SourceFileComponent = function(){
+    var self = this ;
+    this.category = "File"
+    this.key = "Source"
+    this.fileName = ""
+    this.fields = []
+    this.loc = "85 160"
+    this.html = '<div> <form> FileName:<br> <input id="textInput" type="text" name="firstname"> </form> </div>'
+    this.editNode = function(e,obj){
+        $(self.html)
                 .appendTo('body')
                 .dialog({
                     modal: true,
@@ -48,15 +48,16 @@
      }
   }
 
-  var GoogleFeedDestination = {
-      category : "File"
-     ,key:"Google"
-     ,fields: [
+  var GoogleFeedDestination = function(){
+      var self = this;
+      this.category = "File",
+      this.key = "Google",
+      this.fields = [
          { name: "ProductID", color: "#F7B84B", figure: "Ellipse" },
          { name: "ProductName", color: "#F25022", figure: "Ellipse" },
          { name: "Color", color: "#00BCF2" }
-     ]
-     ,loc: "485 160"
+     ],
+     this.loc = "485 160"
   }
 
   var PackageModel = { 
@@ -64,8 +65,8 @@
         "linkFromPortIdProperty": "fromPort",
         "linkToPortIdProperty": "toPort",
         "nodeDataArray": [
-        SourceFileComponent,        
-        GoogleFeedDestination,        
+        new SourceFileComponent(),        
+        new GoogleFeedDestination(),        
         ],
         "linkDataArray": [
       
@@ -124,7 +125,25 @@
      */
     var editNode = function(e, obj) {
         alert("I am going via here")
-        obj.part.data.editNode();
+        var html =  '<div> <form> FileName:<br> <input id="textInput" type="text" name="firstname"> </form> </div>'
+        //obj.part.data.editNode();
+         $(html)
+                .appendTo('body')
+                .dialog({
+                    modal: true,
+                    width: 425,
+                    height: 275,
+                    buttons: {
+                        OK: function(){
+                            var fileName = $('#textInput').val();
+                            $(this).dialog('close');
+                        },
+                        CANCEL : function(){
+                            $(this).dialog('close');
+                        }
+                    }
+                });
+     
     
     }
 
