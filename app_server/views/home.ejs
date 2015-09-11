@@ -18,65 +18,75 @@
   <body onload="init()">
 
     <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-12">
-			<nav class="navbar navbar-default" role="navigation">
-				<div class="navbar-header">
-					 
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-						 <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
-					</button> <a class="navbar-brand" href="#">FeedExchange</a>
-				</div>
-				
-				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav">
-						<li class="active">
-							<a href="#">Admin</a>
-						</li>
-						
-					</ul>
-					
-					<ul class="nav navbar-nav navbar-right">
-						<li>
-							<a href="#">Link</a>
-						</li>
-						<li class="dropdown">
-							 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown<strong class="caret"></strong></a>
-							<ul class="dropdown-menu">
-								<li>
-									<a href="#">Action</a>
-								</li>
-								<li>
-									<a href="#">Another action</a>
-								</li>
-								<li>
-									<a href="#">Something else here</a>
-								</li>
-								<li class="divider">
-								</li>
-								<li>
-									<a href="#">Separated link</a>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-				
-			</nav>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-2">
-			<div id="sideBar" style="border: solid 1px gray; height: 600px"></div>
-		</div>
-		<div class="col-md-10">
-			 <div id="myDiagram" style="border: solid 1px gray; height: 600px"></div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12">
-		</div>
-	</div>
+  	<div class="row">
+  		<div class="col-md-12">
+  			<nav class="navbar navbar-default" role="navigation">
+  				<div class="navbar-header">
+  					 
+  					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+  						 <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+  					</button> <a class="navbar-brand" href="#">FeedExchange</a>
+  				</div>
+  				
+  				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  					<ul class="nav navbar-nav">
+  						<li class="active">
+  							<a href="#">Admin</a>
+  						</li>
+  						
+  					</ul>
+  					
+  					<ul class="nav navbar-nav navbar-right">
+  						<li>
+  							<a href="#">Link</a>
+  						</li>
+  						<li class="dropdown">
+  							 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown<strong class="caret"></strong></a>
+  							<ul class="dropdown-menu">
+  								<li>
+  									<a href="#">Action</a>
+  								</li>
+  								<li>
+  									<a href="#">Another action</a>
+  								</li>
+  								<li>
+  									<a href="#">Something else here</a>
+  								</li>
+  								<li class="divider">
+  								</li>
+  								<li>
+  									<a href="#">Separated link</a>
+  								</li>
+  							</ul>
+  						</li>
+  					</ul>
+  				</div>
+  				
+  			</nav>
+  		</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-12">
+  			<div>
+  				 <button type="button" class="btn btn-success pull-right" onclick="getFileHeaders()">Run</button>
+  			</div>
+            <div>
+  				<button type="button" class="btn btn-primary pull-right">Save</button>
+  			</div>
+  		</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-2">
+  			<div id="sideBar" style="border: solid 1px gray; height: 600px"></div>
+  		</div>
+  		<div class="col-md-10">
+         	 <div id="myDiagram" style="border: solid 1px gray; height: 600px"></div>
+  		</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-12">
+  		</div>
+  	</div>
 </div>
 
     <script src="js/go.js"></script>
@@ -85,6 +95,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
     
     <script id="code">
+  
   /**
    * Define soure file component :-
    * Properties:- 
@@ -101,8 +112,10 @@
     this.fileName = ""
     this.fields = []
     this.loc = "85 160"
-    this.html = '<div> <form> FileName:<br> <input id="textInput" type="text" name="firstname"> </form> </div>'
+    this.html = '<div title="Select File"> <form> FileName:<br> <select id="fileList" name="files"> <option>test1.csv</option> <option>test2.csv</option> </select> </form> </div>'
     this.editNode = function(e,obj){
+        // add list of files to drop down
+        // get from server via api
         $(self.html)
                 .appendTo('body')
                 .dialog({
@@ -111,16 +124,18 @@
                     height: 275,
                     buttons: {
                         OK: function(){
-                            var fileName = $('#textInput').val();
+                            var fileName = $('#fileList').val();
                             // get all headers for this file using server rest api call
                             var data = myDiagram.model.findNodeDataForKey(self.key)
-                            var newFields = [
-                            { name: "ProductID", color: "#F7B84B", figure: "Ellipse" },
-                            { name: "ProductName", color: "#F7B84B", figure: "Ellipse" }
-                            ]
-                            myDiagram.model.setDataProperty(data,"fields",newFields)
+                            var newFields = [] 
+                            getFileHeaders(fileName,function(err,result){
+                              result.headers.forEach(function(header){
+                                newFields.push({ name:header, color: "#F7B84B", figure: "Ellipse"})
+                              })
+                              myDiagram.model.setDataProperty(data,"fields",newFields)
+                              
+                            });
                             $(this).dialog('close');
-
                         },
                         CANCEL : function(){
                             $(this).dialog('close');
@@ -137,8 +152,10 @@
       this.key = "Google",
       this.fields = [
          { name: "ProductID", color: "#F7B84B", figure: "Ellipse" },
-         { name: "ProductName", color: "#F25022", figure: "Ellipse" },
-         { name: "Color", color: "#00BCF2" }
+         { name: "ProductName", color: "#F25022", figure: "Rectangle" },
+         { name: "Color", color: "#00BCF2" ,figure: "Triangle" },
+         { name: "Brand", color: "#F25022" ,figure: "Rectangle" },
+         { name: "Description", color: "#00BCF2" ,figure: "Rectangle" }
      ],
      this.loc = "485 160"
   }
@@ -154,6 +171,12 @@
         "linkDataArray": [
       
         ]}
+
+  function getFileHeaders(fileName,cb){
+     $.get('/api/fileheaders',{fileName:fileName},function(result,status){
+       cb(null,result)
+     })
+  }      
 
   function init() {
     if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
@@ -259,8 +282,92 @@
     var lightgrad = GO(go.Brush, "Linear", { 1: "#E6E6FA", 0: "#FFFAF0" });
 
 
+    /**
+     * Any node that doesnt have category falls into this category
+     * *** Ideally all nodes should fall into some category
+     */
+    myDiagram.nodeTemplateMap.add("",  GO(go.Node,
+                    "Spot",  // panel type
+                    nodeStyle(), // location
+                    // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
+                    GO(go.Panel, "Auto",
+                            GO(go.Shape, "Rectangle",
+                                    { fill: "#00A9C9", stroke: null },
+                                    new go.Binding("figure", "figure")),
+
+                                    // overside shape from node object
+                            GO(go.TextBlock,
+                                    {
+                                        font: "bold 11pt Helvetica, Arial, sans-serif",
+                                        stroke: lightText,
+                                        margin: 8,
+                                        maxSize: new go.Size(100, NaN),
+                                        wrap: go.TextBlock.WrapFit,
+                                        editable: true
+                                    },
+                                    new go.Binding("text").makeTwoWay()) // can edit node text
+                    ),
+                    // four named ports, one on each side:
+                    makePort("T", go.Spot.Top, false, true),
+                    makePort("L", go.Spot.Left, true, true),
+                    makePort("R", go.Spot.Right, true, true),
+                    makePort("B", go.Spot.Bottom, true, false)
+            ));
+
+
+    myDiagram.nodeTemplateMap.add("Start",
+            GO(go.Node, "Spot", nodeStyle(),
+                    GO(go.Panel, "Auto",
+                            GO(go.Shape, "Circle",
+                                    { minSize: new go.Size(40, 40), fill: "#79C900", stroke: null
+                                    }),
+                            GO(go.TextBlock, "Start",
+                                    { font: "bold 11pt Helvetica, Arial, sans-serif", stroke: lightText },
+                                    new go.Binding("text"))
+                    ),
+                    // three named ports, one on each side except the top, all output only:
+                    makePort("L", go.Spot.Left, true, false),
+                    makePort("R", go.Spot.Right, true, false),
+                    makePort("B", go.Spot.Bottom, true, false),
+                    {doubleClick: editNode}
+            ));
+
+    myDiagram.nodeTemplateMap.add("End",
+            GO(go.Node, "Spot", nodeStyle(),
+                    GO(go.Panel, "Auto",
+                            GO(go.Shape, "Circle",
+                                    { minSize: new go.Size(40, 40), fill: "#DC3C00", stroke: null }),
+                            GO(go.TextBlock, "End",
+                                    { font: "bold 11pt Helvetica, Arial, sans-serif", stroke: lightText },
+                                    new go.Binding("text"))
+                    ),
+                    // three named ports, one on each side except the bottom, all input only:
+                    makePort("T", go.Spot.Top, false, true),
+                    makePort("L", go.Spot.Left, false, true),
+                    makePort("R", go.Spot.Right, false, true)
+            ));
+
+    myDiagram.nodeTemplateMap.add("Comment",
+            GO(go.Node, "Auto", nodeStyle(),
+                    GO(go.Shape, "File",
+                            { fill: "#EFFAB4", stroke: null }),
+                    GO(go.TextBlock,
+                            {
+                                margin: 5,
+                                maxSize: new go.Size(200, NaN),
+                                wrap: go.TextBlock.WrapFit,
+                                textAlign: "center",
+                                editable: true,
+                                font: "bold 12pt Helvetica, Arial, sans-serif",
+                                stroke: '#454545'
+                            },
+                            new go.Binding("text").makeTwoWay())
+                    // no ports, because no links are allowed to connect with a comment
+            ));
+
+
    // This template is a Panel that is used to represent each item in a Panel.itemArray.
-   // The Panel is data bound to the item object.
+      // The Panel is data bound to the item object.
       var fieldTemplate =
         GO(go.Panel, "TableRow",  // this Panel is a row in the containing Table
           new go.Binding("portId", "name"),  // this Panel is a "port"
@@ -330,6 +437,7 @@
         );
   
   
+
     // replace the default Link template in the linkTemplateMap
     myDiagram.linkTemplate =
             GO(go.Link,  // the whole link panel
@@ -420,6 +528,9 @@
   }
   
   function load() {
+    // initial model 
+    // phase-2 get it server
+    
     myDiagram.model = go.Model.fromJson(PackageModel);
 }
 
@@ -449,7 +560,6 @@ function addFilesToSource(){
       
       
 
-
-</script>
+    </script>
   </body>
 </html>

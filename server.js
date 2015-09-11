@@ -24,8 +24,10 @@ var PORT = 3002;
 // endregion
 
 // region Configure Express
-app.use(bodyParser());
 app.use(cookieParser());
+app.use(bodyParser.json());
+// support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true }));
 // read cookies (needed for auth)
 app.set('views', path.join(__dirname, '/app_server/views'));
 app.set('view engine', 'ejs');
@@ -42,34 +44,34 @@ app.use(flash());
 
 // region Configure Logger
 expressWinston.responseWhitelist.push('body');
-/**
- * Use Winston Logger
- */
-app.use(expressWinston.logger({
-  transports: [new winston.transports.Console({
-      level: 'info',
-      json: true,
-      colorize: true
-    })],
-  meta: true,
-  msg: 'HTTP {{req.method}} {{req.url}} {{res}}',
-  expressFormat: true,
-  colorStatus: true
-}));
-/**
- * Use Winston Error Logger
- */
-app.use(expressWinston.errorLogger({
-  transports: [new winston.transports.Console({
-      json: true,
-      colorize: true
-    })],
-  meta: false,
-  msg: 'HTTP {{req.method}} {{req.url}}',
-  expressFormat: true,
-  colorStatus: true
-}));
-// endregion
+// /**
+//  * Use Winston Logger
+//  */
+// app.use(expressWinston.logger({
+//   transports: [new winston.transports.Console({
+//       level: 'info',
+//       json: true,
+//       colorize: true
+//     })],
+//   meta: true,
+//   msg: 'HTTP {{req.method}} {{req.url}} {{res}}',
+//   expressFormat: true,
+//   colorStatus: true
+// }));
+// /**
+//  * Use Winston Error Logger
+//  */
+// app.use(expressWinston.errorLogger({
+//   transports: [new winston.transports.Console({
+//       json: true,
+//       colorize: true
+//     })],
+//   meta: false,
+//   msg: 'HTTP {{req.method}} {{req.url}}',
+//   expressFormat: true,
+//   colorStatus: true
+// }));
+// // endregion
 
 // region Handle Routes
 require('./routes/index')(app, passport);
