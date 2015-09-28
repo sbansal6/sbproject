@@ -247,16 +247,13 @@
 
 <script id="code">
 
-    // var listFilesInDirectory = function(){
-    //    $.get('/api/listdirectory',function(result,status){
+    var listFilesInDirectory = function(cb){
+       $.get('/api/listdirectory',function(result,status){
+        cb(null,result);        
+     })
+    }
 
-    //     result.forEach(function(file){
-          
-    //     })
-    //  })
-    // }
-
-    // listFilesInDirectory();
+   
   
   /**
    * Define soure file component :-
@@ -274,11 +271,17 @@
     this.fileName = ""
     this.fields = []
     this.loc = "85 160"
-    this.html = '<div title="Select File"> <form> FileName:<br> <select id="fileList" name="files"> <option>test1.csv</option> <option>test2.csv</option> </select> </form> </div>'
+    this.html = '<div title="Select File"> <form> FileName:<br> <select id="fileList" name="files"> </select> </form> </div>'
     this.editNode = function(e,obj){
-        // add list of files to drop down
-        // get from server via api
-        $(self.html)
+      var html =  $(self.html)
+      // add filenames to html
+
+      listFilesInDirectory(function(err,result){
+          result.forEach(function(file){
+            html.find('#fileList').append($('<option>' + file + '</option>'));
+          })
+       });
+      $(html)
                 .appendTo('body')
                 .dialog({
                     modal: true,

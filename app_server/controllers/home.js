@@ -12,16 +12,18 @@ var main = function (req, res) {
 };
 
 var listFilesInDirectory = function(req,res){
-	var dirname = path.resolve(".")+'/uploads/';
-	fs.readdir(dirname, function (err, files) {
-		if (err) {
-           res.status(500)
-		} else {
-			res.status(200).json(files);
-		}
-
-	})
-
+	var dirname = __dirname + '/../../routes/uploads/files';
+	console.log("dirname",dirname)
+	var items = fs.readdirSync(dirname);
+	var files  = []
+	for (var i in items){
+        var name = dirname + '/' + items[i];
+        console.log(name)
+        if (!(fs.statSync(name).isDirectory())){
+            files.push(items[i]);
+        } 
+    }
+    res.status(200).json(files);
 }
 
 var saveModel = function(req,res){
@@ -89,7 +91,8 @@ var processFlow = function(processFlowCb){
 }
 
 var getFileHeaders = function(fileName,cb){
-	var input = fs.createReadStream(__dirname + '/' + fileName);
+	var dirname = "/Users/saurabhbansal/Google Drive/workspace/sbproject/app_server/controllers/../../routes/uploads/files/"
+	var input = fs.createReadStream(dirname + '/' + fileName);
 	var n = 0;
 	var parser = csv.parse({delimiter: ','})
 	input.pipe(parser);
