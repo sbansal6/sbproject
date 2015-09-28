@@ -1,1 +1,18 @@
-# Empty CSS file for your own CSS
+
+.button-style
+
+{
+
+                color: rgb(245, 245, 245);
+
+                background-color: rgb(34, 80, 226);
+
+                height: 35px;
+
+                width: 80px;
+
+                border-radius: 5px;
+
+                font-weight: bold;
+
+}
