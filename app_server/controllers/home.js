@@ -28,11 +28,12 @@ var listFilesInDirectory = function(req,res){
 
 var saveModel = function(req,res){
 	console.log("I am here")
-	console.log("Received Model",req.body["model"])
+	console.log("Received Model",req.body['model'])
 	processFlow(function(err,result){
         console.log("processFlow is done")
 		res.end("Model Saved");
 	});
+
 	
 }
 
@@ -112,25 +113,6 @@ var getFileHeaders = function(fileName,cb){
         })
 }
 
-/**
-Handles file upload
-
-*/
-var upload = function(req,res){
-    fs.readFile(req.files.image.path, function (err, data){ // readfilr from the given path
-    var dirname = path.resolve(".")+'/uploads/'; // path.resolve(“.”) get application directory path
-    var newPath = dirname +   req.files.image.originalname; // add the file name
-    fs.writeFile(newPath, data, function (err) { // write file in uploads folder
-    if(err){
-          res.json("Failed to upload your file");
-    }else {
-          res.json("Successfully uploaded your file");
-    }
-    });
-    });
-
-}
-
 
 /*
 * Retuuns a list of components
@@ -143,5 +125,4 @@ var getComponents = function(){
 module.exports.main = main ;
 module.exports.headers  = headers;
 module.exports.saveModel = saveModel ;
-module.exports.upload = upload ;
 module.exports.listFilesInDirectory = listFilesInDirectory;

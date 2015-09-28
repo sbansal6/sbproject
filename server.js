@@ -8,20 +8,39 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var winston = require('winston');
 var expressWinston = require('express-winston');
-var busboy = require('connect-busboy');
-
-
 
 // CONFIG VARIABLES
 var app = express();
 var PORT = 3002;
 
+// region Configure Mongoose
+//require('./config/configureDB');
+// endregion
 
+// region Configure passport
+//require('./lib/auth/passport')(passport);
+// pass passport for configuration
+
+// endregion
+
+// region Configure Express
+app.use(cookieParser());
+app.use(bodyParser.json());
+// support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true }));
 // read cookies (needed for auth)
 app.set('views', path.join(__dirname, '/app_server/views'));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-
+// set up ejs for templating
+app.use(session({ secret: 'feed-exchange'}));
+// session secret
+app.use(passport.initialize());
+app.use(passport.session());
+// persistent login sessions
+app.use(flash());
+// use connect-flash for flash messages stored in session
+// endregion
 
 // region Configure Logger
 expressWinston.responseWhitelist.push('body');
@@ -55,7 +74,7 @@ expressWinston.responseWhitelist.push('body');
 // // endregion
 
 // region Handle Routes
-require('./routes/index')(app);
+require('./routes/index')(app, passport);
 // load our routes and pass in our app and fully configured passport
 // endregion
 

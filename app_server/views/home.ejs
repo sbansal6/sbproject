@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="/stylesheets/jquery.fileupload-ui.css">
   </head>
   <body onload="init()">
-
     <div class="container-fluid">
   	<div class="row">
   		<div class="col-md-12">
@@ -80,7 +79,7 @@
   	</div>
   	<div class="row">
   		<div class="col-md-2">
-        		<div id="myPalette" style="border: solid 1px gray; height: 600px">
+        		<div id="myPalette1" style="border: solid 1px gray; height: 600px">
             
         
           </div>
@@ -247,14 +246,6 @@
 
 <script id="code">
 
-    var listFilesInDirectory = function(cb){
-       $.get('/api/listdirectory',function(result,status){
-        cb(null,result);        
-     })
-    }
-
-   
-  
   /**
    * Define soure file component :-
    * Properties:- 
@@ -309,7 +300,6 @@
                     }
                 });
      }
-
   }
 
   var GoogleFeedDestination = function(){
@@ -325,6 +315,15 @@
      ],
      this.loc = "485 160"
   }
+  function listFilesInDirectory(cb){
+         $.get('/api/listdirectory',function(result,status){
+          cb(null,result);        
+          })}
+    
+  function getFileHeaders(fileName,cb){
+       $.get('/api/fileheaders',{fileName:fileName},function(result,status){
+         cb(null,result)
+       })} 
 
   var PackageModel = { 
        "class": "go.GraphLinksModel",
@@ -337,16 +336,8 @@
         "linkDataArray": [
       
         ]}
-
-  function getFileHeaders(fileName,cb){
-     $.get('/api/fileheaders',{fileName:fileName},function(result,status){
-       cb(null,result)
-     })
-  }      
-
-  function init() {
-    if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-    var GO = go.GraphObject.make;  // for conciseness in defining templates
+      
+  var GO = go.GraphObject.make;  // for conciseness in defining templates
     myDiagram =  GO(go.Diagram, "myDiagram",  // must name or refer to the DIV HTML element
                     {
                         initialContentAlignment: go.Spot.Center,
@@ -675,99 +666,42 @@
                                 { name: "CategoryID", iskey: false, figure: "Decision", color: "purple" } ] }
                         ])
                     });
-
-}
-  
+ 
   // Make all ports on a node visible when the mouse is over the node
   function showPorts(node, show) {
     var diagram = node.diagram;
     if (!diagram || diagram.isReadOnly || !diagram.allowLink) return;
     node.ports.each(function(port) {
         port.stroke = (show ? "white" : null);
-    });
-}
-  
+    });}
   // Show the diagram's model in JSON format that the user may edit
   function save() {
       alert("I am in save")
-       var savedModel  = myDiagram.model.toJson();
-      //    // process the form
-      //   $.ajax({
-      //       type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
-      //       url         : '/api/savemodel', // the url where we want to POST
-      //       data        : {model:savedModel}, // our data object
-      //       dataType    : 'json', // what type of data do we expect back from the server
-      //       async : false
-      //       // encode          : true
-      //   })
-      //       // using the done promise callback
-      //       .done(function(data) {
-      //           // log data to the console so we can 
-      //           alert("in data")
-      //           console.log(data); 
+      var savedModel  = myDiagram.model.toJson();
+      event.preventDefault();
 
-      //           // here we will handle errors and validation messages
-      //       });
+      $.ajax({
+          type:    "POST",
+          url:     "/api/savemodel",
+          data:    {model:savedModel},
+          success: function(data) {
+                alert('call back');
+          },
+          // vvv---- This is the new bit
+          error:   function(jqXHR, textStatus, errorThrown) {
+                alert("Error, status = " + textStatus + ", " +
+                      "error thrown: " + errorThrown
+                );
+          }
+        });
 
-      //   // stop the form from submitting the normal way and refreshing the page
-         event.preventDefault();
-
-
-    // jQuery.post("/api/savemodel",{model:savedModel},function(data,status,xhr){
-    //                     console.log("status",status);
-    //                     console.log("data",data);
-    //                 })
-
-    $.ajax({
-      type:    "POST",
-      url:     "/api/savemodel",
-      data:    {model:savedModel},
-      success: function(data) {
-            alert('call back');
-      },
-      // vvv---- This is the new bit
-      error:   function(jqXHR, textStatus, errorThrown) {
-            alert("Error, status = " + textStatus + ", " +
-                  "error thrown: " + errorThrown
-            );
-      }
-    });
-
-     myDiagram.isModified = false;      
-  }
+     myDiagram.isModified = false;     
+        }
   
   function load() {
     // initial model 
-    // phase-2 get it server
-    
-    myDiagram.model = go.Model.fromJson(PackageModel);
-}
-
-  
-function addFilesToSource(){
-    var dataModel = myDiagram.model.toJson()
-    var sample =     { "class": "go.GraphLinksModel",
-      "linkFromPortIdProperty": "fromPort",
-      "linkToPortIdProperty": "toPort",
-      "nodeDataArray": [ 
-    {"category":"Comment", "loc":"360 -10", "text":"Kookie Brittle", "key":-13},
-    {"key":-1, "category":"Start", "loc":"175 0", "text":"Start"},
-    {"key":0, "loc":"0 77", "text":"Preheat oven to 375 F"},
-    {"key":1, "loc":"175 100", "text":"In a bowl, blend: 1 cup margarine, 1.5 teaspoon vanilla, 1 teaspoon salt"},
-    {"category":"File", "key":"Source", "fields":[ {"name":"field1", "color":"#F7B84B", "figure":"Ellipse"},{"name":"field2", "color":"#F25022", "figure":"Ellipse"},{"name":"fieldThree", "color":"#00BCF2"} ], "loc":"175 340"},
-    {"category":"File", "key":"Google", "fields":[ {"name":"field1", "info":"", "color":"#F7B84B", "figure":"Ellipse"},{"name":"field2", "info":"the second one", "color":"#F25022", "figure":"Ellipse"},{"name":"fieldThree", "info":"3rd", "color":"#00BCF2"} ], "loc":"175 400"}
-     ],
-      "linkDataArray": []}
-      
-   // myDiagram.startTransaction("AddingFields");
-    var object = myDiagram.model["nodeDataArray"][4]
-    object.fields.push({"name":"field4", "color":"#F7B84B", "figure":"Ellipse"})
-    alert(JSON.stringify(object))
-  myDiagram.model = go.Model.fromJson(PackageModel);
-      }
-      
-      
-      
+    // phase-2 get it server    
+    myDiagram.model = go.Model.fromJson(PackageModel);}
 
     </script>
   </body>
