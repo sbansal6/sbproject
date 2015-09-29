@@ -5,6 +5,8 @@ var fs = require('fs')
 var csv = require('csv');
 var path=require('path');
 
+var dir = "/Users/saurabhbansal/Google Drive/workspace/sbproject/public/uploaded/files"
+
 var main = function (req, res) {
   res.render('home', { 
   	title: 'FeedExchange'
@@ -12,24 +14,25 @@ var main = function (req, res) {
 };
 
 var listFilesInDirectory = function(req,res){
-	var dirname = __dirname + '/../../routes/uploads/files';
-	console.log("dirname",dirname)
-	var items = fs.readdirSync(dirname);
+	console.log("i am here in")
+	var items = fs.readdirSync(dir);
 	var files  = []
 	for (var i in items){
-        var name = dirname + '/' + items[i];
+        var name = dir + '/' + items[i];
         console.log(name)
         if (!(fs.statSync(name).isDirectory())){
             files.push(items[i]);
         } 
     }
+    console.log("files",files)
     res.status(200).json(files);
 }
 
 var saveModel = function(req,res){
-	console.log("I am here")
-	console.log("Received Model",req.body['model'])
-	processFlow(function(err,result){
+	var model = JSON.parse(req.body['model']) ;
+	// save step
+	// process step
+	processFlow(model,function(err,result){
         console.log("processFlow is done")
 		res.end("Model Saved");
 	});
@@ -37,25 +40,6 @@ var saveModel = function(req,res){
 	
 }
 
-var executeModel  = function(){
-
-	var model = { "class": "go.GraphLinksModel",
-  "linkFromPortIdProperty": "fromPort",
-  "linkToPortIdProperty": "toPort",
-		  "nodeDataArray": [
-		{"category":"File", "key":"Source", "fileName":"", "fields":[ {"name":"ID", "color":"#F7B84B", "figure":"Ellipse"},{"name":"Name", "color":"#F7B84B", "figure":"Ellipse"} ], "loc":"85 160", "html":"<div title=\"Select File\"> <form> FileName:<br> <select id=\"fileList\" name=\"files\"> <option>test1.csv</option> <option>test2.csv</option> </select> </form> </div>"},
-		{"category":"File", "key":"Google", "fields":[ {"name":"ProductID", "color":"#F7B84B", "figure":"Ellipse"},{"name":"ProductName", "color":"#F25022", "figure":"Rectangle"},{"name":"Color", "color":"#00BCF2", "figure":"Triangle"},{"name":"Brand", "color":"#F25022", "figure":"Rectangle"},{"name":"Description", "color":"#00BCF2", "figure":"Rectangle"} ], "loc":"485 160"}
-		 ],
-  "linkDataArray": [
-		{"from":"Source", "to":"Google", "fromPort":"ID", "toPort":"ProductID", "points":[187.5,197.8265625000001,197.5,197.8265625000001,197.5,197.8265625,197.5,197.8265625,477.5,197.8265625,487.5,197.8265625]},
-		{"from":"Source", "to":"Google", "fromPort":"Name", "toPort":"ProductName", "points":[187.5,219.8265625000001,197.5,219.8265625000001,197.5,219.8265625,197.5,219.8265625,477.5,219.8265625,487.5,219.8265625]}
-		 ]}
-
-
-	// get distinct from port (only read those fields from source file)	
-	// rename fields to output alias as in google merchant feed 
-
-}
 
 var headers = function(req,res){
 	var fileName = req.query["fileName"]
@@ -68,11 +52,10 @@ var headers = function(req,res){
 	})
 }
 
-var processFlow = function(processFlowCb){
-	console.log("I am in processFlow")
-	var inputStream = fs.createReadStream(__dirname + '/' + "test1.csv");
-	var outputStream = fs.createWriteStream(__dirname + '/' + "test1out.csv");
-    //processFlowCb()
+var processFlow = function(model,processFlowCb){
+	var fileName = model.nodeDataArray[0].fileName
+	var inputStream = fs.createReadStream(dir + '/' + fileName);
+	var outputStream = fs.createWriteStream(dir + '/' + fileName + ".out");
 	var transformRow = function(row,cb) {
 		console.log("row",row)
 		cb(null,row)
@@ -92,8 +75,7 @@ var processFlow = function(processFlowCb){
 }
 
 var getFileHeaders = function(fileName,cb){
-	var dirname = "/Users/saurabhbansal/Google Drive/workspace/sbproject/app_server/controllers/../../routes/uploads/files/"
-	var input = fs.createReadStream(dirname + '/' + fileName);
+	var input = fs.createReadStream(dir + '/' + fileName);
 	var n = 0;
 	var parser = csv.parse({delimiter: ','})
 	input.pipe(parser);

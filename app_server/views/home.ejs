@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="/stylesheets/jquery.fileupload.css">
     <link rel="stylesheet" href="/stylesheets/jquery.fileupload-ui.css">
   </head>
-  <body onload="init()">
+  <body>
     <div class="container-fluid">
   	<div class="row">
   		<div class="col-md-12">
@@ -33,8 +33,14 @@
   				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
   					<ul class="nav navbar-nav">
   						<li class="active">
-  							<a href="#">Admin</a>
+  							<a href="#">Drive</a>
   						</li>
+              <li class="active">
+                <a href="#">Studio</a>
+              </li>
+              <li class="active">
+                <a href="#">Admin</a>
+              </li>
   						
   					</ul>
   					
@@ -246,6 +252,16 @@
 
 <script id="code">
 
+var listFilesInDirectory = function(cb){
+         $.get('/api/listdirectory',function(result,status){
+          cb(null,result);        
+          })}
+    
+var getFileHeaders  = function(fileName,cb){
+       $.get('/api/fileheaders',{fileName:fileName},function(result,status){
+         cb(null,result)
+       })} 
+
   /**
    * Define soure file component :-
    * Properties:- 
@@ -268,6 +284,7 @@
       // add filenames to html
 
       listFilesInDirectory(function(err,result){
+          alert("i am here")
           result.forEach(function(file){
             html.find('#fileList').append($('<option>' + file + '</option>'));
           })
@@ -282,6 +299,7 @@
                         OK: function(){
                             // todo:- have to refresh whole diagram to change selected file. 
                             var fileName = $('#fileList option:selected').text();
+                            self.fileName = fileName ;
                             // get all headers for this file using server rest api call
                             var data = myDiagram.model.findNodeDataForKey(self.key)
                             var newFields = [] 
@@ -315,15 +333,7 @@
      ],
      this.loc = "485 160"
   }
-  function listFilesInDirectory(cb){
-         $.get('/api/listdirectory',function(result,status){
-          cb(null,result);        
-          })}
-    
-  function getFileHeaders(fileName,cb){
-       $.get('/api/fileheaders',{fileName:fileName},function(result,status){
-         cb(null,result)
-       })} 
+  
 
   var PackageModel = { 
        "class": "go.GraphLinksModel",
@@ -676,10 +686,8 @@
     });}
   // Show the diagram's model in JSON format that the user may edit
   function save() {
-      alert("I am in save")
       var savedModel  = myDiagram.model.toJson();
       event.preventDefault();
-
       $.ajax({
           type:    "POST",
           url:     "/api/savemodel",
