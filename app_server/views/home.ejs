@@ -284,7 +284,6 @@ var getFileHeaders  = function(fileName,cb){
       // add filenames to html
 
       listFilesInDirectory(function(err,result){
-          alert("i am here")
           result.forEach(function(file){
             html.find('#fileList').append($('<option>' + file + '</option>'));
           })
@@ -391,34 +390,6 @@ var getFileHeaders  = function(fileName,cb){
         ];
     }
 
-    // dont need this anymore, every node has its own edit node function that called directly from node template
-    /**
-     * Open Node specific dialog box , html comes from node itself
-     *
-     */
-    var editNode = function(e, obj) {
-        alert("I am going via here")
-        var html =  '<div> <form> FileName:<br> <input id="textInput" type="text" name="firstname"> </form> </div>'
-        //obj.part.data.editNode();
-         $(html)
-                .appendTo('body')
-                .dialog({
-                    modal: true,
-                    width: 425,
-                    height: 275,
-                    buttons: {
-                        OK: function(){
-                            var fileName = $('#textInput').val();
-                            $(this).dialog('close');
-                        },
-                        CANCEL : function(){
-                            $(this).dialog('close');
-                        }
-                    }
-                });
-     
-    
-    }
 
     // Define a function for creating a "port" that is normally transparent.
     // The "name" is used as the GraphObject.portId, the "spot" is used to control how links connect
@@ -693,7 +664,7 @@ var getFileHeaders  = function(fileName,cb){
           url:     "/api/savemodel",
           data:    {model:savedModel},
           success: function(data) {
-                alert('call back');
+                //alert('call back');
           },
           // vvv---- This is the new bit
           error:   function(jqXHR, textStatus, errorThrown) {
