@@ -419,6 +419,34 @@ var getFileHeaders  = function(fileName,cb){
     var yellowgrad = GO(go.Brush, "Linear", { 0: "rgb(254, 221, 50)", 1: "rgb(254, 182, 50)" });
     var lightgrad = GO(go.Brush, "Linear", { 1: "#E6E6FA", 0: "#FFFAF0" });
 
+  // dont need this anymore, every node has its own edit node function that called directly from node template
+    /**
+     * Open Node specific dialog box , html comes from node itself
+     *
+     */
+    var editNode = function(e, obj) {
+        alert("I am going via here")
+        var html =  '<div> <form> FileName:<br> <input id="textInput" type="text" name="firstname"> </form> </div>'
+        //obj.part.data.editNode();
+         $(html)
+                .appendTo('body')
+                .dialog({
+                    modal: true,
+                    width: 425,
+                    height: 275,
+                    buttons: {
+                        OK: function(){
+                            var fileName = $('#textInput').val();
+                            $(this).dialog('close');
+                        },
+                        CANCEL : function(){
+                            $(this).dialog('close');
+                        }
+                    }
+                });
+     
+    
+    }
 
     /**
      * Any node that doesnt have category falls into this category

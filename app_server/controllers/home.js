@@ -40,22 +40,34 @@ var saveModel = function(req,res){
 	
 }
 
-
-var headers = function(req,res){
-	var fileName = req.query["fileName"]
-	getFileHeaders(fileName,function(err,result){
-		if (err){
-			res.status(500)
-		} else {
-			res.status(200).json(result);
-		}
-	})
-}
-
 var processFlow = function(model,processFlowCb){
 	var fileName = model.nodeDataArray[0].fileName
 	var inputStream = fs.createReadStream(dir + '/' + fileName);
 	var outputStream = fs.createWriteStream(dir + '/' + fileName + ".out");
+    console.log(model)
+    var model = { 
+		    	class: 'go.GraphLinksModel',
+		  linkFromPortIdProperty: 'fromPort',
+		  linkToPortIdProperty: 'toPort',
+		  nodeDataArray:
+		   [ { category: 'File',
+		       key: 'Source',
+		       fileName: 'Feed1.csv',
+		       fields: [Object],
+		       loc: '110 162',
+		       html: '<div title="Select File"> <form> FileName:<br> <select id="fileList" name="files"> </select> </form> </div>' },
+		     { category: 'File',
+		       key: 'Google',
+		       fields: [Object],
+		       loc: '485 160' } ],
+		  linkDataArray:
+		   [ { from: 'Source',
+		       to: 'Google',
+		       fromPort: 'ProdId',
+		       toPort: 'ProductID',
+		       points: [Object] } ]
+        }
+
 	var transformRow = function(row,cb) {
 		console.log("row",row)
 		cb(null,row)
@@ -72,6 +84,18 @@ var processFlow = function(model,processFlowCb){
         processFlowCb(null,null)
 	 })        
 
+}
+
+
+var headers = function(req,res){
+	var fileName = req.query["fileName"]
+	getFileHeaders(fileName,function(err,result){
+		if (err){
+			res.status(500)
+		} else {
+			res.status(200).json(result);
+		}
+	})
 }
 
 var getFileHeaders = function(fileName,cb){
