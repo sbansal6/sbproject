@@ -61,7 +61,7 @@ describe('processor',function(){
 	       loc: '135 163',
 	       html: '<div title="Select File"> <form> FileName:<br> <select id="fileList" name="files"> </select> </form> </div>' }
 	    var p = new Processor(model,options);
-		console.log(p.getItem(source,obj))
+		//console.log(p.TestFunctions.getItem(source,obj))
 		//expect(p.getItem(source,obj)).to.equal(output)
 		})
 	})

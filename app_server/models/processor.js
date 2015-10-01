@@ -9,6 +9,7 @@ var Processor = function(model,options){
   var model = model;
   var options = options ||  {}
   
+  // HELPER FUNCTIONS
   /**
    * Get particalur item from model by keyname and value
    * params :- 
@@ -26,6 +27,15 @@ var Processor = function(model,options){
       return item;
   }
   this.getItem = getItem ;
+  
+  // END HLEPER FUNCTIONS
+  
+  // EXPOSE FUNCTIONS FOR TESTING
+  this.TestFunctions =  {
+    getItem : getItem 
+  }
+  // END EXPOSE
+  
   /**
    * SourceFile is present in source component
    */
