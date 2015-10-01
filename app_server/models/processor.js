@@ -1,6 +1,10 @@
-var fs = require('fs')
+var path  = require('path');
+var fs = require('fs');
 var csv = require('csv');
 var _ = require('underscore');
+var config = {dir:""};
+// points to config/env
+// will be a seperate module added as dependency
 
 /**
  * Processor object/class is responsible for processing the model
@@ -9,88 +13,121 @@ var _ = require('underscore');
  *   options : object : optional
  */
 var Processor = function(model,options){
-  if (!model){
-    throw new Error("model is a required constructor argument")
-  }
-  /**
-   * Source component object from model
-   */
-  var sourceComponent  = sourceComponent || getItem(model.nodeDataArray,{category: 'Source'});
-  /**
-   * Merchant Connector Object
-   * This can be extracted from model or if object grows big in future
-   *      get it from components library
-   */
-  var merchantConnector  = merchantConnector || getItem(model.nodeDataArray,{category: 'MerchantConnector'});
-  
-  /**
-   * function that actually process input and converts to ouput 
-   *  1) Reads input line by line
-   *  2) ****phase2 applies middleware (cleanup functions) if specified  to each field
-   *  3) converts to output field
-   *  4) field analysis based on rules (every merchant connector has rules associated with it)
-   * 
-   */
-  var process = function(){
-    
-  }
-  
-  // HELPER FUNCTIONS
-  /**
-   * Get particalur item from model by keyname and value
-   * params :- 
-   *   source : Array
-   *   obj :    Object {key:value}
-   * 
-   * return :-
-   *   Object
-   */
-  var getItem = function(source,obj){
-      var item = _.find(source,function(item){
-        var keyName = Object.keys(obj)[0]
-        return item[keyName] == obj[keyName]
-      })
-      return item;
-  }
-  
-  // END HLEPER FUNCTIONS
-  
-  // EXPOSE FUNCTIONS FOR TESTING
-  this.TestFunctions =  {
-    getItem : getItem 
-  }
-  // END EXPOSE
-  
-  // var inputStream = fs.createReadStream(dir + '/' + fileName);
-  // var outputStream = fs.createWriteStream(dir + '/' + fileName + ".out");
-  // var processRow = function(){}
- 
-  // var getOutPutHeaderName  = function(inputFieldName){
-  //       var link = _.find(model.linkDataArray,function(link){
-  //       	return link.fromPort == inputFieldName
-  //       })
-  //       return link.toPort ;
-  //   }
-    
-  // var transformRow = function(row,cb) {
-	// console.log("row",row)
-	// cb(null,row)
-	// }
+    if (!model){
+        // log here
+        throw new Error("model is a required constructor argument")
+    }
 
-  //  this.processFile = function(cb){
-	// 	inputStream.pipe(csv.parse({ columns: true }))
-	// 		       .pipe(csv.transform(function (row, next) {
-	// 		              transformRow(row,  function (err, outRow) {
-	// 			                next(null,outRow)
-	// 			              });
-	// 			            }))
-	// 		        .pipe(csv.stringify({ header: true })).pipe(outputStream);
-	// 	outputStream.on('finish', function () {   
-	// 		console.log("output stream is done")
-	// 	    cb(null,null)
-	// 		 })        
-	// 	    }
+    /**
+     * Source component object from model
+     */
+    var sourceComponent  =  getItem(model.nodeDataArray,{category: 'Source'});
 
-}       
+    /**
+     * Merchant Connector Object
+     * This can be extracted from model or if object grows big in future
+     *      get it from components library
+     */
+    var merchantConnector  = getItem(model.nodeDataArray,{category: 'MerchantConnector'});
+
+
+    var mappings = getFieldsMapping();
+
+    /**
+     * Process Each row
+     */
+    function transformEachRow(row,mappings){
+        // only pass fields for which u find destination mapping
+        // out header name should correspond to destination connector name
+        for (var fieldKey in row){
+            console.log(fieldKey)
+        }
+
+
+    }
+
+    /**
+     * Returns mapping between source and destination
+     * ***Phase2 should honor the intermediate stages
+     */
+    function getFieldsMapping(){
+        var mappings = {};
+        model.linkDataArray.forEach(function(link){
+            mappings[link["fromPort"]] = link["toPort"]
+        })
+        return mappings;
+    }
+
+    /**
+     * function that actually process input and converts to ouput
+     *  1) Reads input line by line
+     *  2) ****phase2 applies middleware (cleanup functions) if specified  to each field
+     *  3) converts to output field
+     *  4) field analysis based on rules (every merchant connector has rules associated with it)
+     *
+     */
+    function process(processCb){
+        var directory = options.dir || config.dir ;
+        var inputFileFullName = path.join(directory, sourceComponent.fileName) ;
+        var inputStream = fs.createReadStream(inputFileFullName);
+        var outputStream = fs.createWriteStream(inputFileFullName.replace(".csv",".out.csv"));
+
+        inputStream.pipe(csv.parse({ columns: true }))
+            .pipe(csv.transform(function (row, next) {
+                transformEachRow(row,  function (err, outRow) {
+                    next(null,outRow)
+                });
+            }))
+            .pipe(csv.stringify({ header: true })).pipe(outputStream);
+        outputStream.on('finish', function () {
+            console.log("output stream is done")
+            processCb(null,null)
+        });
+    }
+
+    // HELPER FUNCTIONS
+    /**
+     * Get particalur item from model by keyname and value
+     * params :-
+     *   source : Array
+     *   obj :    Object {key:value}
+     *
+     * return :-
+     *   Object
+     */
+    function getItem(source,obj){
+        var item = _.find(source,function(item){
+            var keyName = Object.keys(obj)[0]
+            return item[keyName] == obj[keyName]
+        })
+        return item;
+    }
+
+    // END HLEPER FUNCTIONS
+
+    // EXPOSE FUNCTIONS FOR TESTING
+    this.TestFunctions =  {
+        getItem : getItem ,
+        getFieldsMapping: getFieldsMapping,
+        transformEachRow: transformEachRow
+    }
+    // END EXPOSE
+
+
+    //  this.processFile = function(cb){
+    // 	inputStream.pipe(csv.parse({ columns: true }))
+    // 		       .pipe(csv.transform(function (row, next) {
+    // 		              transformRow(row,  function (err, outRow) {
+    // 			                next(null,outRow)
+    // 			              });
+    // 			            }))
+    // 		        .pipe(csv.stringify({ header: true })).pipe(outputStream);
+    // 	outputStream.on('finish', function () {
+    // 		console.log("output stream is done")
+    // 	    cb(null,null)
+    // 		 })
+    // 	    }
+
+}
 
 module.exports = Processor
