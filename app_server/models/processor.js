@@ -2,12 +2,38 @@ var fs = require('fs')
 var csv = require('csv');
 var _ = require('underscore');
 
+/**
+ * Processor object/class is responsible for processing the model
+ * params:-
+ *   model : object : required
+ *   options : object : optional
+ */
 var Processor = function(model,options){
   if (!model){
     throw new Error("model is a required constructor argument")
   }
-  var model = model;
-  var options = options ||  {}
+  /**
+   * Source component object from model
+   */
+  var sourceComponent  = sourceComponent || getItem(model.nodeDataArray,{category: 'Source'});
+  /**
+   * Merchant Connector Object
+   * This can be extracted from model or if object grows big in future
+   *      get it from components library
+   */
+  var merchantConnector  = merchantConnector || getItem(model.nodeDataArray,{category: 'MerchantConnector'});
+  
+  /**
+   * function that actually process input and converts to ouput 
+   *  1) Reads input line by line
+   *  2) ****phase2 applies middleware (cleanup functions) if specified  to each field
+   *  3) converts to output field
+   *  4) field analysis based on rules (every merchant connector has rules associated with it)
+   * 
+   */
+  var process = function(){
+    
+  }
   
   // HELPER FUNCTIONS
   /**
@@ -26,7 +52,6 @@ var Processor = function(model,options){
       })
       return item;
   }
-  this.getItem = getItem ;
   
   // END HLEPER FUNCTIONS
   
@@ -35,19 +60,6 @@ var Processor = function(model,options){
     getItem : getItem 
   }
   // END EXPOSE
-  
-  /**
-   * SourceFile is present in source component
-   */
-  var sourcefileName = "" //model.nodeDataArray[].fileName
-  
-  /**
-   * Get destination merchant connector from model
-   * Model can only have one destination connector
-   */
-  var destinationConnector = ""
-  
-  
   
   // var inputStream = fs.createReadStream(dir + '/' + fileName);
   // var outputStream = fs.createWriteStream(dir + '/' + fileName + ".out");
