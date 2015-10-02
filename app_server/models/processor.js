@@ -91,22 +91,27 @@ var Processor = function(model,options){
         var directory = options.dir || config.dir ;
         var inputFileFullName = path.join(directory, sourceComponent.fileName) ;
         var inputStream = fs.createReadStream(inputFileFullName);
-        var outputStream = fs.createWriteStream(inputFileFullName.replace(".csv",".out.csv"));
+        var outputStream = []
+        var outputFileStream = fs.createWriteStream(inputFileFullName.replace(".csv",".out.csv"));
         var mappings = getFieldsMapping();
-        console.log("directory",directory)
-        console.log("inputFileFullName",inputFileFullName)
-        console.log("mappings",mappings)
         inputStream.pipe(csv.parse({ columns: true }))
             .pipe(csv.transform(function (row, next) {
                 transformEachRow(row, mappings, function (err, outRow) {
                     next(null,outRow)
                 });
             }))
-            .pipe(csv.stringify({ header: true })).pipe(outputStream);
-        outputStream.on('finish', function () {
-            console.log("output stream is done")
-            processCb(null,null)
-        });
+            //.pipe(csv.stringify({ header: true }))
+            .on("data", function(data){
+                outputStream.push(data)
+            })
+            .on("end", function(){
+                console.log("Final data",outputStream)
+                processCb(null,outputStream)
+            });
+//        outputStream.on('finish', function () {
+//            console.log("output stream is done")
+//            processCb(null,null)
+//        });
     }
 
     this.process = process;

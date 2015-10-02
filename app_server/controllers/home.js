@@ -35,7 +35,7 @@ var saveModel = function(req,res){
 	// process step
 	processFlow(model,function(err,result){
         console.log("processFlow is done")
-		res.end("Model Saved");
+        res.status(200).json(result);
 	});
 
 	
@@ -46,11 +46,11 @@ var processFlow = function(model,processFlowCb){
 	try {
 		//console.log("passing model",model)
 		var p =  new Processor(model,{dir:"/Users/saurabhbansal/Google Drive/workspace/sbproject/public/uploaded/files"})
-			p.process(function(err){
-				processFlowCb("done")
+		p.process(function(err,result){
+			processFlowCb(null,result)
 	})
 	} catch(ex) {
-		console.log("ex",ex)
+        processFlowCb(ex)
 	}
 	
 	// var fileName = model.nodeDataArray[0].fileName

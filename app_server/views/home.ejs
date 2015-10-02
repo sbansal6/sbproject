@@ -17,6 +17,18 @@
     <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
     <link rel="stylesheet" href="/stylesheets/jquery.fileupload.css">
     <link rel="stylesheet" href="/stylesheets/jquery.fileupload-ui.css">
+      <style>
+          table {
+              border: 1px solid #666;
+              width: 100%;
+          }
+          th {
+              background: #f8f8f8;
+              font-weight: bold;
+              padding: 2px;
+          }
+
+      </style>
   </head>
   <body>
     <div class="container-fluid">
@@ -85,18 +97,18 @@
   	</div>
   	<div class="row">
   		<div class="col-md-2">
-        		<div id="myPalette1" style="border: solid 1px gray; height: 600px">
+        		<div id="myPalette1" style="border: solid 1px gray; height: 300px">
             
         
           </div>
              
   		</div>
   		<div class="col-md-10">
-         	 <div id="myDiagram" style="border: solid 1px gray; height: 600px"></div>
+         	 <div id="myDiagram" style="border: solid 1px gray; height: 300px"></div>
   		</div>
   	</div>
   	<div class="row">
-  		<div class="col-md-6">
+  		<div class="col-md-4">
         <div style="border: solid 1px gray; height: 100%">
           <form id="fileupload" action="/upload" method="POST" enctype="multipart/form-data">
               <div class="row fileupload-buttonbar">
@@ -130,9 +142,18 @@
 
         </div>
   		</div>
-      <div class="col-md-6">
+      <div class="col-md-8">
         <div style="border: solid 1px gray; height: 100px">
-        Output
+            <table id="personDataTable">
+                <tr>
+                    <th>ProductID</th>
+                    <th>ProductName</th>
+                    <th>Color</th>
+                    <th>Brand</th>
+                    <th>Description</th>
+                </tr>
+
+            </table>
         </div>
       </div>
   	</div>
@@ -251,6 +272,23 @@
 </script>
 
 <script id="code">
+
+function drawTable(data) {
+    
+    for (var i = 0; i < data.length; i++) {
+        drawRow(data[i]);
+    }
+}
+
+function drawRow(rowData) {
+    var row = $("<tr />")
+    $("#personDataTable").append(row); //this will append tr element to table... keep its reference for a while since we will add cels into it
+    row.append($("<td>" + rowData.ProductID + "</td>"));
+    row.append($("<td>" + rowData.ProductName + "</td>"));
+    row.append($("<td>" + rowData.Color + "</td>"));
+    row.append($("<td>" + rowData.Brand + "</td>"));
+    row.append($("<td>" + rowData.Description + "</td>"));
+}
 
 var listFilesInDirectory = function(cb){
          $.get('/api/listdirectory',function(result,status){
@@ -692,7 +730,7 @@ var getFileHeaders  = function(fileName,cb){
           url:     "/api/savemodel",
           data:    {model:savedModel},
           success: function(data) {
-                //alert('call back');
+                drawTable(data)
           },
           // vvv---- This is the new bit
           error:   function(jqXHR, textStatus, errorThrown) {
