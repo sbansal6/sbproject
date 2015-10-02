@@ -11,6 +11,10 @@ var config = {dir:""};
  * params:-
  *   model : object : required
  *   options : object : optional
+ *     {
+ *      userProfile : "",
+ *      executionId : ""
+ *     }
  */
 var Processor = function(model,options){
     if (!model){
@@ -34,16 +38,32 @@ var Processor = function(model,options){
     var mappings = getFieldsMapping();
 
     /**
+     * Get mapped key if exists
+     */
+    function getMappedKey(key,mapping){
+      if (mapping.hasOwnProperty(key)) {
+         return mapping[key];
+      } else {
+          return false;
+      }
+      
+    }
+
+    /**
      * Process Each row
      */
-    function transformEachRow(row,mappings){
-        // only pass fields for which u find destination mapping
-        // out header name should correspond to destination connector name
+    function transformEachRow(row,mappings,transformEachRowCb){
+        // only pass fields for which there is a  destination mapping
+        // out header name should correspond to destination connector name        
+        var outputRow = {}
+        var mappedKey ;
         for (var fieldKey in row){
-            console.log(fieldKey)
+            mappedKey = getMappedKey(fieldKey,mappings);
+            if (mappedKey){
+                outputRow[mappedKey] = row[fieldKey]
+            }
         }
-
-
+        return outputRow;
     }
 
     /**
@@ -71,10 +91,10 @@ var Processor = function(model,options){
         var inputFileFullName = path.join(directory, sourceComponent.fileName) ;
         var inputStream = fs.createReadStream(inputFileFullName);
         var outputStream = fs.createWriteStream(inputFileFullName.replace(".csv",".out.csv"));
-
+        var mappings = getFieldsMapping();
         inputStream.pipe(csv.parse({ columns: true }))
             .pipe(csv.transform(function (row, next) {
-                transformEachRow(row,  function (err, outRow) {
+                transformEachRow(row, mappings, function (err, outRow) {
                     next(null,outRow)
                 });
             }))
@@ -109,7 +129,8 @@ var Processor = function(model,options){
     this.TestFunctions =  {
         getItem : getItem ,
         getFieldsMapping: getFieldsMapping,
-        transformEachRow: transformEachRow
+        transformEachRow: transformEachRow,
+        getMappedKey: getMappedKey
     }
     // END EXPOSE
 

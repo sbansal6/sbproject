@@ -86,10 +86,25 @@ describe('processor',function(){
     describe('transformEachRow',function(){
         it('should pass',function(){
             var mappings =  { ProdId: 'ProductID', name: 'ProductName' }
-            var row = {ProdId:"123",name:"test1","type":"sock"}
+            var row = {ProdId:"123",name:"test1",type:"sock"}
             var p  = new Processor(model,options)
-            p.TestFunctions.transformEachRow(row,mappings)
+			var output = { ProductID: '123', ProductName: 'test1' }
+            expect(p.TestFunctions.transformEachRow(row,mappings)).to.deep.equal(output)
         })
 
     })
+	describe('getMappedKey',function(){
+		it('should pass, key exists',function(){
+			var mappings =  { ProdId: 'ProductID', name: 'ProductName' }
+            var key = "ProdId"
+			 var p  = new Processor(model,options)
+			expect(p.TestFunctions.getMappedKey(key,mappings)).to.be.equal("ProductID");
+		})
+		it('should pass, key doesnt exists',function(){
+			var mappings =  { ProdId: 'ProductID', name: 'ProductName' }
+            var key = "type"
+			 var p  = new Processor(model,options)
+			expect(p.TestFunctions.getMappedKey(key,mappings)).to.be.equal(false);
+		})
+	})
 })
