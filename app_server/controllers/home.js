@@ -4,6 +4,7 @@
 var fs = require('fs')
 var csv = require('csv');
 var path=require('path');
+var Processor = require('../models/processor')
 
 var dir = "/Users/saurabhbansal/Google Drive/workspace/sbproject/public/uploaded/files"
 
@@ -41,48 +42,59 @@ var saveModel = function(req,res){
 }
 
 var processFlow = function(model,processFlowCb){
-	var fileName = model.nodeDataArray[0].fileName
-	var inputStream = fs.createReadStream(dir + '/' + fileName);
-	var outputStream = fs.createWriteStream(dir + '/' + fileName + ".out");
-    console.log(model)
-    var model = { 
-		    	class: 'go.GraphLinksModel',
-		  linkFromPortIdProperty: 'fromPort',
-		  linkToPortIdProperty: 'toPort',
-		  nodeDataArray:
-		   [ { category: 'File',
-		       key: 'Source',
-		       fileName: 'Feed1.csv',
-		       fields: [Object],
-		       loc: '110 162',
-		       html: '<div title="Select File"> <form> FileName:<br> <select id="fileList" name="files"> </select> </form> </div>' },
-		     { category: 'File',
-		       key: 'Google',
-		       fields: [Object],
-		       loc: '485 160' } ],
-		  linkDataArray:
-		   [ { from: 'Source',
-		       to: 'Google',
-		       fromPort: 'ProdId',
-		       toPort: 'ProductID',
-		       points: [Object] } ]
-        }
-
-	var transformRow = function(row,cb) {
-		console.log("row",row)
-		cb(null,row)
+	console.log("i am in process flow")
+	try {
+		//console.log("passing model",model)
+		var p =  new Processor(model,{dir:"/Users/saurabhbansal/Google Drive/workspace/sbproject/public/uploaded/files"})
+			p.process(function(err){
+				processFlowCb("done")
+	})
+	} catch(ex) {
+		console.log("ex",ex)
 	}
-	inputStream.pipe(csv.parse({ columns: true }))
-	           .pipe(csv.transform(function (row, next) {
-		              transformRow(row,  function (err, outRow) {
-		                next(null,outRow)
-		              });
-		            }))
-	           .pipe(csv.stringify({ header: true })).pipe(outputStream);
-	outputStream.on('finish', function () {   
-		console.log("output stream is done")
-        processFlowCb(null,null)
-	 })        
+	
+	// var fileName = model.nodeDataArray[0].fileName
+	// var inputStream = fs.createReadStream(dir + '/' + fileName);
+	// var outputStream = fs.createWriteStream(dir + '/' + fileName + ".out");
+    // console.log(model)
+    // var model = { 
+	// 	    	class: 'go.GraphLinksModel',
+	// 	  linkFromPortIdProperty: 'fromPort',
+	// 	  linkToPortIdProperty: 'toPort',
+	// 	  nodeDataArray:
+	// 	   [ { category: 'File',
+	// 	       key: 'Source',
+	// 	       fileName: 'Feed1.csv',
+	// 	       fields: [Object],
+	// 	       loc: '110 162',
+	// 	       html: '<div title="Select File"> <form> FileName:<br> <select id="fileList" name="files"> </select> </form> </div>' },
+	// 	     { category: 'File',
+	// 	       key: 'Google',
+	// 	       fields: [Object],
+	// 	       loc: '485 160' } ],
+	// 	  linkDataArray:
+	// 	   [ { from: 'Source',
+	// 	       to: 'Google',
+	// 	       fromPort: 'ProdId',
+	// 	       toPort: 'ProductID',
+	// 	       points: [Object] } ]
+    //     }
+
+	// var transformRow = function(row,cb) {
+	// 	console.log("row",row)
+	// 	cb(null,row)
+	// }
+	// inputStream.pipe(csv.parse({ columns: true }))
+	//            .pipe(csv.transform(function (row, next) {
+	// 	              transformRow(row,  function (err, outRow) {
+	// 	                next(null,outRow)
+	// 	              });
+	// 	            }))
+	//            .pipe(csv.stringify({ header: true })).pipe(outputStream);
+	// outputStream.on('finish', function () {   
+	// 	console.log("output stream is done")
+    //     processFlowCb(null,null)
+	//  })        
 
 }
 

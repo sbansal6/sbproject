@@ -25,14 +25,14 @@ var Processor = function(model,options){
     /**
      * Source component object from model
      */
-    var sourceComponent  =  getItem(model.nodeDataArray,{category: 'Source'});
+    var sourceComponent  =  getItem(model.nodeDataArray,{key: 'Source'});
 
     /**
      * Merchant Connector Object
      * This can be extracted from model or if object grows big in future
      *      get it from components library
      */
-    var merchantConnector  = getItem(model.nodeDataArray,{category: 'MerchantConnector'});
+    var merchantConnector  = getItem(model.nodeDataArray,{key: 'Google'});
 
 
     var mappings = getFieldsMapping();
@@ -63,11 +63,12 @@ var Processor = function(model,options){
                 outputRow[mappedKey] = row[fieldKey]
             }
         }
-        return outputRow;
+        transformEachRowCb(null,outputRow);
     }
 
     /**
      * Returns mapping between source and destination
+     * *** should be able to map same field to multiple fields
      * ***Phase2 should honor the intermediate stages
      */
     function getFieldsMapping(){
@@ -92,6 +93,9 @@ var Processor = function(model,options){
         var inputStream = fs.createReadStream(inputFileFullName);
         var outputStream = fs.createWriteStream(inputFileFullName.replace(".csv",".out.csv"));
         var mappings = getFieldsMapping();
+        console.log("directory",directory)
+        console.log("inputFileFullName",inputFileFullName)
+        console.log("mappings",mappings)
         inputStream.pipe(csv.parse({ columns: true }))
             .pipe(csv.transform(function (row, next) {
                 transformEachRow(row, mappings, function (err, outRow) {
@@ -105,6 +109,8 @@ var Processor = function(model,options){
         });
     }
 
+    this.process = process;
+    
     // HELPER FUNCTIONS
     /**
      * Get particalur item from model by keyname and value
