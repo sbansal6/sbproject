@@ -1,6 +1,13 @@
 // file upload and download
 // http://www.mindstick.com/Articles/5327b0f1-2d29-4c9b-b031-04b397107300/Upload%20and%20Download%20File%20in%20Node%20JS#.VfnnxCBVhBf
 // https://sankartypo3.wordpress.com/2013/02/12/how-to-list-files-and-folders-using-nodejs/
+
+// jquery grid
+//http://jsfiddle.net/sEwM6/2998/
+
+//http://gojs.net/latest/intro/changedEvents.html
+// adding image to nodes
+//http://gojs.net/latest/intro/nodes.html
 var fs = require('fs')
 var csv = require('csv');
 var path=require('path');
