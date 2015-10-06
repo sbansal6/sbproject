@@ -97,7 +97,7 @@
   	</div>
   	<div class="row">
   		<div class="col-md-2">
-        		<div id="myPalette1" style="border: solid 1px gray; height: 300px">
+        		<div id="myPalette" style="border: solid 1px gray; height: 300px">
             
         
           </div>
@@ -486,6 +486,17 @@ var getFileHeaders  = function(fileName,cb){
     
     }
 
+//http://forum.nwoods.com/t/disable-a-particular-node-in-palette-window/5111/7
+// event on dropped
+// myDiagram.addDiagramListener("ExternalObjectsDropped", function(e){
+// var sel = e.diagram.selection;
+// var elem = sel.first();
+// var selectText = elem.findObject("TEXT"); // Name of the TextBlock.
+// var selectShape = elem.findObject("SHAPE"); // Name of the Shape.
+// myDiagram.remove(selectShape.part);
+
+// });
+
     /**
      * Any node that doesnt have category falls into this category
      * *** Ideally all nodes should fall into some category
@@ -552,7 +563,9 @@ var getFileHeaders  = function(fileName,cb){
             ));
 
     myDiagram.nodeTemplateMap.add("Comment",
-            GO(go.Node, "Auto", nodeStyle(),
+            GO(go.Node, "Auto", nodeStyle(),{ movable: false,
+              copyable: false,
+              deletable: false },
                     GO(go.Shape, "File",
                             { fill: "#EFFAB4", stroke: null }),
                     GO(go.TextBlock,
@@ -705,7 +718,7 @@ var getFileHeaders  = function(fileName,cb){
                             { category: "Start", text: "Start" },
                             { text: "Step" },
                             { text: "???", figure: "Diamond" },
-                            { category: "End", text: "End" },
+                            { category: "End", text: "End",setDaggable:false },
                             { category: "Comment", text: "Comment" },
                             { category: "InputFile2", text: "Source", items: [ { name: "ProductID", iskey: true, figure: "Decision", color: yellowgrad },
                                 { name: "ProductName", iskey: false, figure: "Cube1", color: bluegrad },
