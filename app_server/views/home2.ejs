@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>FeedExchange</title>
+
+    <meta name="description" content="Source code generated using layoutit.com">
+    <meta name="author" content="LayoutIt!">
+
+    <link id="bootcss" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.2.0/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="/stylesheets/blueimp-gallery.min.css">
+    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+    <link rel="stylesheet" href="/stylesheets/jquery.fileupload.css">
+    <link rel="stylesheet" href="/stylesheets/jquery.fileupload-ui.css">
+      <style>
+          table {
+              border: 1px solid #666;
+              width: 100%;
+          }
+          th {
+              background: #f8f8f8;
+              font-weight: bold;
+              padding: 2px;
+          }
+
+      </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+  	<div class="row">
+  		<div class="col-md-12">
+  			<nav class="navbar navbar-default" role="navigation">
+  				
+  				
+  			</nav>
+  		</div>
+  	</div>
+  	<div class="row">
+
+  		</div>
+  	</div>
+  	<div class="row">
+  		
+  		<div class="col-md-10">
+         	 <div id="myDiagram" style="border: solid 1px gray; height: 300px"></div>
+  		</div>
+  	</div>
+  	
+</div>
+
+    <script src="js/go.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+   
+    <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+    <script src="/javascripts/uploader/jquery.ui.widget.js"></script>
+    <!-- The Templates plugin is included to render the upload/download listings -->
+    <script src="/javascripts/uploader/tmpl.min.js"></script>
+    <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+    <script src="/javascripts/uploader/load-image.min.js"></script>
+    <!-- The Canvas to Blob plugin is included for image resizing functionality -->
+    <script src="/javascripts/uploader/canvas-to-blob.min.js"></script>
+    <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <!-- blueimp Gallery script -->
+    <script src="/javascripts/uploader/jquery.blueimp-gallery.min.js"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="/javascripts/uploader/jquery.iframe-transport.js"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="/javascripts/uploader/jquery.fileupload.js"></script>
+    <!-- The File Upload processing plugin -->
+    <script src="/javascripts/uploader/jquery.fileupload-process.js"></script>
+    <!-- The File Upload image preview & resize plugin -->
+    <script src="/javascripts/uploader/jquery.fileupload-image.js"></script>
+    <!-- The File Upload audio preview plugin -->
+    <script src="/javascripts/uploader/jquery.fileupload-audio.js"></script>
+    <!-- The File Upload video preview plugin -->
+    <script src="/javascripts/uploader/jquery.fileupload-video.js"></script>
+    <!-- The File Upload validation plugin -->
+    <script src="/javascripts/uploader/jquery.fileupload-validate.js"></script>
+    <!-- The File Upload user interface plugin -->
+    <script src="/javascripts/uploader/jquery.fileupload-ui.js"></script>
+    <!-- The main application script -->
+    <script src="/javascripts/uploader/main.js"></script>
+    
+<!-- The template to display files available for upload -->
+
+
+<script id="code">
+
+      
+  var GO = go.GraphObject.make;  // for conciseness in defining templates
+    myDiagram =  GO(go.Diagram, "myDiagram",  // must name or refer to the DIV HTML element
+                    {
+                        initialContentAlignment: go.Spot.Center,
+                        allowDrop: true,  // must be true to accept drops from the Palette
+                        //"LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
+                        //"LinkRelinked": showLinkLabel,
+                        "animationManager.duration": 600, // slightly longer than default (600ms) animation
+                        "undoManager.isEnabled": true  // enable undo & redo
+                    });
+
+   
+
+
+    </script>
+  </body>
+</html>
