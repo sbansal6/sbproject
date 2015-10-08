@@ -96,16 +96,225 @@
 
       
   var GO = go.GraphObject.make;  // for conciseness in defining templates
-    myDiagram =  GO(go.Diagram, "myDiagram",  // must name or refer to the DIV HTML element
+
+    diagram =  GO(go.Diagram, "myDiagram",  // must name or refer to the DIV HTML element
                     {
                         initialContentAlignment: go.Spot.Center,
                         allowDrop: true,  // must be true to accept drops from the Palette
-                        //"LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
-                        //"LinkRelinked": showLinkLabel,
+                        "LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
+                        "LinkRelinked": showLinkLabel,
                         "animationManager.duration": 600, // slightly longer than default (600ms) animation
                         "undoManager.isEnabled": true  // enable undo & redo
                     });
 
+// diagram.nodeTemplateMap.add("Comment",
+//             GO(go.Node, "Auto", nodeStyle(),{ movable: false,
+//               copyable: false,
+//               deletable: false },
+//                     GO(go.Shape, "File",
+//                             { fill: "#EFFAB4", stroke: null }),
+//                     GO(go.TextBlock,
+//                             {
+//                                 margin: 5,
+//                                 maxSize: new go.Size(200, NaN),
+//                                 wrap: go.TextBlock.WrapFit,
+//                                 textAlign: "center",
+//                                 editable: true,
+//                                 font: "bold 12pt Helvetica, Arial, sans-serif",
+//                                 stroke: '#454545'
+//                             },
+//                             new go.Binding("text").makeTwoWay())
+//                     // no ports, because no links are allowed to connect with a comment
+//             ));
+
+// helper definitions for node templates
+    function nodeStyle() {
+        return [
+            // The Node.location comes from the "loc" property of the node data,
+            // converted by the Point.parse static method.
+            // If the Node.location is changed, it updates the "loc" property of the node data,
+            // converting back using the Point.stringify static method.
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            {
+                // the Node.location is at the center of each node
+                locationSpot: go.Spot.Center,
+                //isShadowed: true,
+                //shadowColor: "#888",
+                // handle mouse enter/leave events to show/hide the ports
+                mouseEnter: function (e, obj) { showPorts(obj.part, true); },
+                mouseLeave: function (e, obj) { showPorts(obj.part, false); }
+            }
+        ];
+    }
+
+
+    // Define a function for creating a "port" that is normally transparent.
+    // The "name" is used as the GraphObject.portId, the "spot" is used to control how links connect
+    // and where the port is positioned on the node, and the boolean "output" and "input" arguments
+    // control whether the user can draw links from or to the port.
+    function makePort(name, spot, output, input) {
+        // the port is basically just a small circle that has a white stroke when it is made visible
+        return GO(go.Shape, "Circle",
+                {
+                    fill: "transparent",
+                    stroke: null,  // this is changed to "white" in the showPorts function
+                    desiredSize: new go.Size(10, 10),
+                    alignment: spot, alignmentFocus: spot,  // align the port on the main Shape
+                    portId: name,  // declare this object to be a "port"
+                    fromSpot: spot, toSpot: spot,  // declare where links may connect at this port
+                    fromLinkable: output, toLinkable: input,  // declare whether the user may draw links to/from here
+                    cursor: "pointer"  // show a different cursor to indicate potential link point
+                });
+    }
+
+
+function showPorts(node, show) {
+    var diagram = node.diagram;
+    if (!diagram || diagram.isReadOnly || !diagram.allowLink) return;
+    node.ports.each(function(port) {
+        port.stroke = (show ? "white" : null);
+    });}
+
+// Make link labels visible if coming out of a "conditional" node.
+    // This listener is called by the "LinkDrawn" and "LinkRelinked" DiagramEvents.
+    function showLinkLabel(e) {
+        var label = e.subject.findObject("LABEL");
+        if (label !== null) label.visible = (e.subject.fromNode.data.figure === "Diamond");
+    }
+
+diagram.nodeTemplateMap.add("Comment",
+            GO(go.Node, "Auto", nodeStyle(),{ movable: false,
+              copyable: false,
+              deletable: false },
+                    GO(go.Shape, "File",
+                            { fill: "#EFFAB4", stroke: null }),
+                    GO(go.TextBlock,
+                            {
+                                margin: 5,
+                                maxSize: new go.Size(200, NaN),
+                                wrap: go.TextBlock.WrapFit,
+                                textAlign: "center",
+                                editable: true,
+                                font: "bold 12pt Helvetica, Arial, sans-serif",
+                                stroke: '#454545'
+                            },
+                            new go.Binding("text").makeTwoWay())
+                    // no ports, because no links are allowed to connect with a comment
+            ));
+
+diagram.nodeTemplateMap.add("SourceFile",
+    GO(go.Node, "Auto",
+      GO(go.Shape, "Rectangle", { fill: "lightgray" }),
+      GO(go.Panel, "Table",
+
+
+        GO(go.RowColumnDefinition,
+          { column: 0, alignment: go.Spot.Left}),
+        GO(go.RowColumnDefinition,
+          { column: 2, alignment: go.Spot.Right }),
+        GO(go.TextBlock,  // the node title
+          { column: 0, row: 0, columnSpan: 3, alignment: go.Spot.Center,
+            font: "bold 10pt sans-serif", margin: new go.Margin(4, 2) },
+          new go.Binding("text", "key")),
+        GO(go.Panel, "Horizontal",
+          { column: 2, row: 1 ,margin: new go.Margin(4, 2) },
+          GO(go.TextBlock, "Field1",{margin: new go.Margin(4, 2)}),  // "B" port label
+          GO(go.Shape,  // the "A" port
+            { width: 6, height: 6, portId: "A", toSpot: go.Spot.Right,fromLinkable: true })
+        ),
+        GO(go.Panel, "Horizontal",
+          { column: 2, row: 2 ,margin: new go.Margin(4, 2) },
+          GO(go.TextBlock, "Field2",{margin: new go.Margin(4, 2)}),  // "B" port label
+          GO(go.Shape,  // the "B" port
+            { width: 6, height: 6, portId: "B", toSpot: go.Spot.Right,fromLinkable: true }
+            )
+          
+        ),
+        GO(go.Panel, "Horizontal",
+          { column: 2, row: 3, rowSpan: 2,margin: new go.Margin(4, 2)  },
+          GO(go.TextBlock, "Out",{margin: new go.Margin(4, 2)}),  // "Out" port label
+          GO(go.Shape,  // the "Out" port
+            { width: 6, height: 6, portId: "Field3", fromSpot: go.Spot.Right,fromLinkable: true })
+        )
+      )
+    ));
+
+diagram.nodeTemplateMap.add("Destination",
+    GO(go.Node, "Auto",
+      GO(go.Shape, "Rectangle", { fill: "lightgray" }),
+      GO(go.Panel, "Table",
+
+    { defaultRowSeparatorStroke: "gray"
+           },
+
+
+        GO(go.RowColumnDefinition,
+          { column: 0, alignment: go.Spot.Left}),
+        GO(go.RowColumnDefinition,
+          { column: 2, alignment: go.Spot.Right }),
+
+        GO(go.TextBlock,  // the node title
+          { column: 0, row: 0, columnSpan: 3, alignment: go.Spot.Center,
+            font: "bold 10pt sans-serif", margin: new go.Margin(4, 2) },
+          new go.Binding("text", "key")),
+
+        GO(go.Panel, "Horizontal",
+          { column: 0, row: 1 ,margin: new go.Margin(4, 2) },
+          
+          GO(go.Shape,  // the "A" port
+            { width: 6, height: 6, portId: "A", toSpot: go.Spot.Left ,toLinkable: true, toMaxLinks: 1 }),
+          GO(go.TextBlock, "Field1",{margin: new go.Margin(4, 2)})
+        ),
+
+        GO(go.Panel, "Horizontal",
+          { column: 0, row: 2 ,margin: new go.Margin(4, 2) },
+          
+          GO(go.Shape,  // the "B" port
+            { width: 6, height: 6, portId: "B", toSpot: go.Spot.Left,toLinkable: true, toMaxLinks: 1 }) ,
+          GO(go.TextBlock, "Field2",{margin: new go.Margin(4, 2)})       
+        ),
+
+        GO(go.Panel, "Horizontal",
+          { column: 0, row: 3, rowSpan: 2,margin: new go.Margin(4, 2)  },
+          
+          GO(go.Shape,  // the "Out" port
+            { width: 6, height: 6, portId: "C", fromSpot: go.Spot.Left,toLinkable: true, toMaxLinks: 1 }),
+
+          GO(go.TextBlock, "Out",{margin: new go.Margin(4, 2)})
+        )
+      )
+    ));
+
+
+
+
+  diagram.linkTemplate =
+    GO(go.Link,
+      { routing: go.Link.Orthogonal, corner: 3 },
+      GO(go.Shape),
+      GO(go.Shape, { toArrow: "Standard" })
+    );
+
+  diagram.layout = GO(go.LayeredDigraphLayout, { columnSpacing: 10 });
+  diagram.initialContentAlignment = go.Spot.Center;
+
+ // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
+    diagram.toolManager.linkingTool.temporaryLink.routing = go.Link.Orthogonal;
+    diagram.toolManager.relinkingTool.temporaryLink.routing = go.Link.Orthogonal;
+    
+  diagram.model =
+    GO(go.GraphLinksModel,
+      { linkFromPortIdProperty: "fromPort",  // required information:
+        linkToPortIdProperty: "toPort",      // identifies data property names
+        nodeDataArray: [
+          { category: "SourceFile" ,key: "Add1" },
+          { category: "SourceFile", key: "Add2" },
+          { category: "Destination", key: "Subtract1" },
+          { category: "Comment", text: "Comment" }
+        ],
+        linkDataArray: [
+         
+        ] });
    
 
 
